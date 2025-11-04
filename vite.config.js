@@ -1,20 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 export default defineConfig({
+  base: process.env.NODE_ENV === "production" ? "/TravelIndia/" : "/",
   plugins: [
     react(),
-    runtimeErrorOverlay(),
-    ...(process.env.NODE_ENV !== "production" &&
-    process.env.REPL_ID !== undefined
-      ? [
-          await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
-          ),
-        ]
-      : []),
   ],
   resolve: {
     alias: {
@@ -25,34 +16,19 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,
   },
   server: {
     port: 5174,
     strictPort: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
+    // Only proxy API requests in development to the local Django server.
+    // In production we rely on the absolute API_URL and do not proxy.
+    proxy: process.env.NODE_ENV === 'production' ? {} : {
+      "/api": {
+        target: "https://backend-8-4eax.onrender.com",
         changeOrigin: true,
-        secure: false,
-        ws: true,
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
-            console.log('proxy error', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
-          });
-        },
       },
-    },
-    fs: {
-      strict: true,
-      allow: ['..'],
     },
   },
 });
