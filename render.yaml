@@ -1,9 +1,8 @@
-
 services:
-  - type: static
+  - type: web
     name: travel-vista
+    env: static
     repo: https://github.com/Harshit-jain-786/TravelIndia
-    branch: main   # change to "master" if your repo uses master
+    branch: main   # change if using master
     buildCommand: npm install && npm run build
-    publishPath: dist
-    envVars: []
+    staticPublishPath: dist
