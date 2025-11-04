@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
-  base: process.env.GITHUB_PAGES ? "/TravelIndia/" : "/",
+  base: "/", // ✅ Render only
   plugins: [react()],
   resolve: {
     alias: {
